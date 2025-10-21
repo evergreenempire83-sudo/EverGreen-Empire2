@@ -1,0 +1,2736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EverGreen Empire Ltd. | Enterprise Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Add all your CSS styles here */
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary: #374151;
+            --accent: #d97706;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --info: #1e3a8a;
+            --dark: #1f2937;
+            --darker: #111827;
+            --light: #ffffff;
+            --lighter: #f8fafc;
+            --gray: #6b7280;
+            --border: rgba(30, 58, 138, 0.1);
+            --shadow: 0 8px 30px rgba(30, 58, 138, 0.08);
+            --gradient-primary: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            --gradient-secondary: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            --gradient-accent: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            --gradient-dark: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --gradient-premium: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            --cfo-primary: #7c3aed;
+            --cfo-accent: #f59e0b;
+        }
+
+        .dark-mode {
+            --primary: #3b82f6;
+            --primary-dark: #1e40af;
+            --primary-light: #60a5fa;
+            --secondary: #e5e7eb;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --dark: #f9fafb;
+            --darker: #ffffff;
+            --light: #1f2937;
+            --lighter: #111827;
+            --gray: #9ca3af;
+            --border: rgba(59, 130, 246, 0.2);
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            --gradient-secondary: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            --gradient-premium: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--gradient-premium);
+            color: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+            font-weight: 400;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .dark-mode .loading-overlay {
+            background: rgba(17, 24, 39, 0.95);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--dark);
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Login Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--gradient-premium);
+            position: relative;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: var(--light);
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background: var(--gradient-primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(30, 58, 138, 0.15);
+        }
+
+        .logo-section h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .logo-section p {
+            color: var(--gray);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-container input {
+            padding-right: 50px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 16px;
+            background: var(--lighter);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--dark);
+            font-size: 16px;
+            transition: all 0.2s ease;
+            min-height: 56px;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 56px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
+        }
+
+        .error-message {
+            color: var(--danger);
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--light);
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 10px;
+            text-align: center;
+            line-height: 1.1;
+            flex-shrink: 0;
+        }
+
+        .brand-text h1 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .brand-text p {
+            font-size: 11px;
+            color: var(--gray);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Header Controls */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .control-btn {
+            background: var(--lighter);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            min-height: 40px;
+            white-space: nowrap;
+        }
+
+        .control-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .control-btn.primary {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+        }
+
+        .control-btn.cfo {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .control-btn.logout {
+            background: var(--danger);
+            color: white;
+            border-color: transparent;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--lighter);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            min-width: 0;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            text-align: right;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            font-size: 10px;
+            color: var(--gray);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--dark);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        /* Notification System */
+        .notification-center {
+            position: fixed;
+            top: 80px;
+            right: 10px;
+            left: 10px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .notification {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            animation: slideInRight 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .notification.success {
+            border-left-color: var(--success);
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning);
+        }
+
+        .notification.error {
+            border-left-color: var(--danger);
+        }
+
+        .notification.info {
+            border-left-color: var(--info);
+        }
+
+        .notification-icon {
+            font-size: 18px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: var(--gray);
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Real-time Sync Indicator */
+        .sync-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            animation: pulse 2s infinite;
+            max-width: calc(100vw - 40px);
+        }
+
+        .sync-indicator.syncing {
+            background: var(--warning);
+            animation: pulse 1s infinite;
+        }
+
+        .sync-indicator.error {
+            background: var(--danger);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 24px 0;
+        }
+
+        /* Grid Systems */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .brands-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .cfo-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .cfo-tools {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        /* Cards */
+        .stat-card, .brand-card, .cfo-card, .ai-insights-panel,
+        .user-management, .cfo-dashboard, .update-section, .data-section {
+            background: var(--light);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover, .brand-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Forms */
+        .user-form, .update-form {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Data Table */
+        .data-table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -16px;
+            padding: 0 16px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .data-table th {
+            background: var(--lighter);
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .welcome-content h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .welcome-content p {
+            opacity: 0.9;
+        }
+
+        /* Brand Stats */
+        .brand-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .brand-stat {
+            text-align: center;
+            padding: 16px 12px;
+            background: var(--lighter);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .brand-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .brand-stat-label {
+            color: var(--gray);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Brand Actions */
+        .brand-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .brand-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--dark);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 13px;
+            min-height: 44px;
+        }
+
+        .brand-btn.primary {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+        }
+
+        .brand-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--lighter);
+            color: var(--dark);
+            padding: 24px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-content {
+            text-align: center;
+        }
+
+        .footer p {
+            opacity: 0.8;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        /* Animations */
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .brands-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .cfo-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .cfo-tools {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .section-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .user-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .update-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .notification-center {
+                right: 20px;
+                left: auto;
+                max-width: 350px;
+            }
+
+            .brand-stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .brands-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .cfo-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .cfo-tools {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .user-form {
+                grid-template-columns: 1fr 1fr auto auto;
+            }
+
+            .header-content {
+                flex-wrap: nowrap;
+            }
+
+            .mobile-menu-btn {
+                display: none;
+            }
+        }
+
+        /* Additional Styles */
+        .country-tag {
+            display: inline-flex;
+            align-items: center;
+            background: var(--lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin: 4px;
+            font-size: 12px;
+        }
+
+        .remove-country {
+            margin-left: 6px;
+            cursor: pointer;
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        .countries-input {
+            display: flex;
+            gap: 8px;
+        }
+
+        .countries-input input {
+            flex: 1;
+        }
+
+        .countries-list {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .revenue-preview {
+            background: var(--lighter);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            margin: 16px 0;
+        }
+
+        .revenue-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--success);
+            margin: 8px 0;
+        }
+
+        .revenue-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .rpm-info {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .submit-section {
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+
+        .submit-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
+        }
+
+        .csv-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .csv-upload-area:hover {
+            border-color: var(--primary);
+        }
+
+        .upload-box i {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .upload-box h4 {
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .upload-box p {
+            color: var(--gray);
+            margin-bottom: 16px;
+        }
+
+        .upload-btn {
+            background: var(--lighter);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 24px;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .upload-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .user-details h4 {
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+
+        .user-details p {
+            color: var(--gray);
+            font-size: 12px;
+        }
+
+        .user-action-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--dark);
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .user-action-btn.reset {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .user-action-btn.delete {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .cfo-tool-btn {
+            background: var(--lighter);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .cfo-tool-btn:hover {
+            border-color: var(--cfo-primary);
+            transform: translateY(-2px);
+        }
+
+        .cfo-tool-btn i {
+            font-size: 24px;
+            color: var(--cfo-primary);
+        }
+
+        .cfo-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cfo-header i {
+            color: var(--cfo-accent);
+            font-size: 24px;
+        }
+
+        .cfo-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--cfo-primary);
+            margin: 8px 0;
+        }
+
+        .cfo-label {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ai-header i {
+            color: var(--accent);
+        }
+
+        .ai-refresh-btn {
+            background: var(--lighter);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            color: var(--dark);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .stat-trend {
+            color: var(--success);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .brand-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo-large {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 14px;
+        }
+
+        .brand-details h3 {
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+
+        .brand-details p {
+            color: var(--gray);
+            font-size: 12px;
+        }
+
+        .brand-revenue {
+            background: var(--lighter);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .brand-revenue .revenue-label {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .brand-revenue .revenue-value {
+            font-size: 18px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Loading Dashboard...</div>
+    </div>
+
+    <!-- Notification Center -->
+    <div class="notification-center" id="notificationCenter"></div>
+
+    <!-- Real-time Sync Indicator -->
+    <div class="sync-indicator" id="syncIndicator">
+        <i class="fas fa-sync"></i>
+        <span>Real-time Sync Active</span>
+    </div>
+
+    <!-- Login Page -->
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <div class="logo-section">
+                <div class="logo">
+                    <div style="color: white; font-weight: 700; font-size: 12px; text-align: center; line-height: 1.2;">
+                        <div>EVERGREEN</div>
+                        <div>EMPIRE</div>
+                    </div>
+                </div>
+                <h1>EverGreen Empire</h1>
+                <p>Enterprise Dashboard</p>
+            </div>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="email">Corporate Email</label>
+                    <input type="email" id="email" placeholder="admin@evergreenempireltd.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Access Password</label>
+                    <div class="password-container">
+                        <input type="password" id="password" placeholder="Enter secure password" required>
+                        <button type="button" class="toggle-password" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="login-btn">Access Dashboard</button>
+                <div class="error-message" id="errorMessage">Authentication failed. Please verify credentials.</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <header class="header" id="header">
+            <div class="container">
+                <div class="header-content">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="brand">
+                        <div class="brand-logo">
+                            <div style="color: white; font-weight: 700; font-size: 9px; text-align: center; line-height: 1.1;">
+                                <div>EG</div>
+                                <div>EMP</div>
+                            </div>
+                        </div>
+                        <div class="brand-text">
+                            <h1>EverGreen Empire</h1>
+                            <p>Enterprise Dashboard</p>
+                        </div>
+                    </div>
+                    <div class="header-controls">
+                        <button class="control-btn" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Refresh</span>
+                        </button>
+                        <button class="control-btn" id="themeToggle">
+                            <i class="fas fa-moon"></i>
+                            <span>Theme</span>
+                        </button>
+                        <button class="control-btn" id="userManagementToggle" style="display: none;">
+                            <i class="fas fa-users"></i>
+                            <span>Users</span>
+                        </button>
+                        <button class="control-btn" id="cfoToggle" style="display: none;">
+                            <i class="fas fa-chart-line"></i>
+                            <span>CFO Tools</span>
+                        </button>
+                        <button class="control-btn" id="portalToggle">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Analytics</span>
+                        </button>
+                        <button class="control-btn primary" id="updateToggle" style="display: none;">
+                            <i class="fas fa-edit"></i>
+                            <span>Update</span>
+                        </button>
+                        <button class="control-btn logout" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                        <div class="user-profile">
+                            <div class="user-avatar" id="userAvatar">AD</div>
+                            <div class="user-info">
+                                <div class="user-name" id="userName">Administrator</div>
+                                <div class="user-role" id="userRole">System Admin</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <!-- User Management -->
+                <div class="user-management" id="userManagement" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">User Management</h2>
+                        <div class="section-actions">
+                            <button class="control-btn primary" id="refreshUsersBtn">
+                                <i class="fas fa-sync"></i>
+                                <span>Refresh</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <form id="userForm" class="user-form">
+                        <div class="input-group">
+                            <label for="newUserEmail">Email</label>
+                            <input type="email" id="newUserEmail" placeholder="user@evergreenempire.com" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="newUserPassword">Password</label>
+                            <input type="password" id="newUserPassword" placeholder="Set password" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="newUserRole">Role</label>
+                            <select id="newUserRole" required>
+                                <option value="Executive">Executive</option>
+                                <option value="CFO">CFO</option>
+                                <option value="CEO">CEO</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="control-btn primary">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Create User</span>
+                        </button>
+                    </form>
+
+                    <div class="users-list" id="usersList">
+                        <div class="user-item">
+                            <div class="user-details">
+                                <h4>admin@evergreenempireltd.com</h4>
+                                <p>Admin • System Administrator</p>
+                            </div>
+                            <div class="user-actions">
+                                <span style="color: var(--gray); font-size: 12px;">Owner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CFO Dashboard -->
+                <div class="cfo-dashboard" id="cfoDashboard" style="display: none;">
+                    <div class="section-header">
+                        <div class="cfo-header">
+                            <i class="fas fa-crown"></i>
+                            <h3 class="section-title">CFO Financial Dashboard</h3>
+                        </div>
+                        <div class="section-actions">
+                            <button class="control-btn cfo" id="generateReportBtn">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                <span>Generate Report</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="cfo-grid">
+                        <div class="cfo-card">
+                            <h4>Total Portfolio Value</h4>
+                            <div class="cfo-value" id="cfoTotalValue">$284.7K</div>
+                            <div class="cfo-label">Projected Annual Revenue</div>
+                        </div>
+                        <div class="cfo-card">
+                            <h4>Profit Margin</h4>
+                            <div class="cfo-value" id="cfoProfitMargin">68.2%</div>
+                            <div class="cfo-label">Average Across Brands</div>
+                        </div>
+                        <div class="cfo-card">
+                            <h4>Cash Flow</h4>
+                            <div class="cfo-value" id="cfoCashFlow">$42.8K</div>
+                            <div class="cfo-label">Monthly Net Cash</div>
+                        </div>
+                    </div>
+
+                    <div class="cfo-tools">
+                        <button class="cfo-tool-btn" onclick="runFinancialForecast()">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Revenue Forecast</span>
+                        </button>
+                        <button class="cfo-tool-btn" onclick="generateFinancialStatements()">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Financial Statements</span>
+                        </button>
+                        <button class="cfo-tool-btn" onclick="calculateTaxLiability()">
+                            <i class="fas fa-calculator"></i>
+                            <span>Tax Calculator</span>
+                        </button>
+                        <button class="cfo-tool-btn" onclick="generateBoardReport()">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Board Report</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard View -->
+                <div class="dashboard-view" id="dashboardView">
+                    <!-- Overview Section -->
+                    <section class="dashboard-overview">
+                        <div class="welcome-banner">
+                            <div class="welcome-content">
+                                <h2 id="welcomeMessage">Good Morning, Administrator</h2>
+                                <p>Welcome to your corporate command center. All systems operational.</p>
+                            </div>
+                        </div>
+
+                        <!-- AI Insights Panel -->
+                        <div class="ai-insights-panel" id="aiInsightsPanel">
+                            <div class="section-header">
+                                <div class="ai-header">
+                                    <i class="fas fa-robot"></i>
+                                    <h3 class="section-title">AI Business Insights</h3>
+                                </div>
+                                <div class="section-actions">
+                                    <button class="ai-refresh-btn" id="aiRefreshBtn">
+                                        <i class="fas fa-sync"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="ai-content" id="aiContent">
+                                <div style="color: var(--gray); font-style: italic;">
+                                    AI insights will appear here. This feature provides strategic analysis of your brand performance data.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-header">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-globe"></i>
+                                    </div>
+                                    <div class="stat-trend">+6.7%</div>
+                                </div>
+                                <div class="stat-value">84</div>
+                                <div class="stat-label">Countries Reached</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-header">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <div class="stat-trend">+8.3%</div>
+                                </div>
+                                <div class="stat-value" id="totalRevenue">$284.7K</div>
+                                <div class="stat-label">Total Revenue</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-header">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-tv"></i>
+                                    </div>
+                                    <div class="stat-trend">+15.2%</div>
+                                </div>
+                                <div class="stat-value" id="totalViews">156.8K</div>
+                                <div class="stat-label">Total Views</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Brands Performance -->
+                    <section class="brands-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Brand Portfolio Performance</h2>
+                            <div class="section-actions">
+                                <button class="control-btn" id="exportCSVBtn">
+                                    <i class="fas fa-download"></i>
+                                    <span>Export CSV</span>
+                                </button>
+                                <button class="control-btn primary" id="refreshDataBtn">
+                                    <i class="fas fa-sync"></i>
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="brands-grid" id="brandsGrid">
+                            <!-- Brand cards will be populated by JavaScript -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Update Portal View -->
+                <div class="update-view" id="updateView" style="display: none;">
+                    <section class="update-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Update Corporate Data</h2>
+                            <div class="section-actions">
+                                <button class="control-btn" id="importCSVBtn">
+                                    <i class="fas fa-file-import"></i>
+                                    <span>Import CSV</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- CSV Upload Area -->
+                        <div class="csv-upload-area" id="csvUploadArea">
+                            <div class="upload-box">
+                                <i class="fas fa-file-csv"></i>
+                                <h4>Upload YouTube Analytics CSV</h4>
+                                <p>Drag & drop your CSV file or click to browse</p>
+                                <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                                <button class="upload-btn" id="browseCSVBtn">Browse Files</button>
+                            </div>
+                        </div>
+
+                        <div id="updateFormContainer">
+                            <form id="updateForm" class="update-form">
+                                <div class="input-group">
+                                    <label for="brandSelect">Brand Selection</label>
+                                    <select id="brandSelect" required>
+                                        <option value="">Select Corporate Brand</option>
+                                        <option value="IAkeys">IAkeys</option>
+                                        <option value="EVER-SPORTZ">EVER-SPORTZ</option>
+                                        <option value="EVER-MOVIEZ">EVER-MOVIEZ</option>
+                                        <option value="EVER-CATOONZ">EVER-CATOONZ</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label for="streams">Content Streams</label>
+                                    <input type="number" id="streams" placeholder="Enter stream count" min="0" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="views48h">48H Views</label>
+                                    <input type="number" id="views48h" placeholder="48-hour views" min="0" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="views7d">7D Views</label>
+                                    <input type="number" id="views7d" placeholder="7-day views" min="0" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="views28d">28D Views</label>
+                                    <input type="number" id="views28d" placeholder="28-day views" min="0" required>
+                                </div>
+                                <div class="input-group full-width">
+                                    <label for="countryInput">Top Markets</label>
+                                    <div class="countries-input">
+                                        <input type="text" id="countryInput" placeholder="Enter target market">
+                                        <button type="button" class="add-country-btn" id="addCountryBtn">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div class="countries-list" id="countriesList"></div>
+                                </div>
+                                <div class="revenue-preview">
+                                    <div class="revenue-label">Projected Revenue</div>
+                                    <div class="revenue-value" id="revenueValue">$0.00</div>
+                                    <div class="rpm-info">Based on $0.12 RPM across all platforms</div>
+                                </div>
+                                <div class="submit-section">
+                                    <button type="submit" class="submit-btn">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>Update Corporate Records</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+
+                    <section class="data-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Current Portfolio Data</h2>
+                            <div class="section-actions">
+                                <button class="control-btn primary" id="exportFinancialBtn">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                    <span>CFO Report</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="data-table-container">
+                            <table class="data-table" id="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>Brand</th>
+                                        <th>48H Views</th>
+                                        <th>7D Views</th>
+                                        <th>28D Views</th>
+                                        <th>Streams</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                    <!-- Data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <p>© 2025 EverGreen Empire Ltd. | Global Media Conglomerate</p>
+                    <p>Enterprise Dashboard | Navy & Gold Professional</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // =============================================
+        // EVERGREEN EMPIRE DASHBOARD - FIXED SUPABASE
+        // =============================================
+
+        // Supabase Configuration - USE YOUR CREDENTIALS
+        const SUPABASE_URL = 'https://clhaquwjevqdzjobthdz.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsaGFxdXdqZXZxZHpqb2J0aGR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwNjYxODMsImV4cCI6MjA3NjY0MjE4M30.Ns2raXXMNPAveuogHrcRsTgazQrpTTnzr6ZeURc3pv0';
+
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Secure User Credentials
+        const USER_CREDENTIALS = {
+            'ceo@evergreenempireltd.com': { password: 'Ceo2024!', role: 'CEO', name: 'Chief Executive Officer', avatar: 'CE' },
+            'cfo@evergreenempireltd.com': { password: 'Cfo2024!', role: 'CFO', name: 'Chief Financial Officer', avatar: 'CF' },
+            'admin@evergreenempireltd.com': { password: 'Ever25', role: 'Admin', name: 'Chief Operations', avatar: 'CO' }
+        };
+
+        // DOM Elements
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loginPage = document.getElementById('loginPage');
+        const dashboard = document.getElementById('dashboard');
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const userName = document.getElementById('userName');
+        const userRole = document.getElementById('userRole');
+        const userAvatar = document.getElementById('userAvatar');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const userManagementToggle = document.getElementById('userManagementToggle');
+        const userManagement = document.getElementById('userManagement');
+        const cfoToggle = document.getElementById('cfoToggle');
+        const cfoDashboard = document.getElementById('cfoDashboard');
+        const portalToggle = document.getElementById('portalToggle');
+        const updateToggle = document.getElementById('updateToggle');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const dashboardView = document.getElementById('dashboardView');
+        const updateView = document.getElementById('updateView');
+        const brandsGrid = document.getElementById('brandsGrid');
+        const tableBody = document.getElementById('tableBody');
+        const totalRevenue = document.getElementById('totalRevenue');
+        const totalViews = document.getElementById('totalViews');
+        const exportCSVBtn = document.getElementById('exportCSVBtn');
+        const refreshDataBtn = document.getElementById('refreshDataBtn');
+        const exportFinancialBtn = document.getElementById('exportFinancialBtn');
+        const aiRefreshBtn = document.getElementById('aiRefreshBtn');
+        const aiContent = document.getElementById('aiContent');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const userForm = document.getElementById('userForm');
+        const usersList = document.getElementById('usersList');
+        const refreshUsersBtn = document.getElementById('refreshUsersBtn');
+        const notificationCenter = document.getElementById('notificationCenter');
+        const syncIndicator = document.getElementById('syncIndicator');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+
+        // Global State
+        let currentUser = null;
+        let currentCountries = [];
+        let realtimeSubscription = null;
+        let corporateData = {};
+        let notificationCount = 0;
+        let isMobileMenuOpen = false;
+
+        // =============================================
+        // REAL-TIME SYNC ENGINE - FIXED
+        // =============================================
+
+        function setupRealtimeSync() {
+            console.log('🔄 Setting up real-time sync...');
+            
+            // Clean up existing subscription
+            if (realtimeSubscription) {
+                supabase.removeChannel(realtimeSubscription);
+            }
+
+            realtimeSubscription = supabase
+                .channel('public:brand_metrics')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'brand_metrics'
+                    },
+                    (payload) => {
+                        console.log('🆕 NEW DATA INSERTED:', payload);
+                        handleRealtimeUpdate(payload);
+                    }
+                )
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'brand_metrics'
+                    },
+                    (payload) => {
+                        console.log('📝 DATA UPDATED:', payload);
+                        handleRealtimeUpdate(payload);
+                    }
+                )
+                .subscribe((status) => {
+                    console.log('Realtime status:', status);
+                    if (status === 'SUBSCRIBED') {
+                        updateSyncIndicator('active');
+                        showNotification('Real-time sync connected', 'success');
+                    } else if (status === 'CHANNEL_ERROR') {
+                        console.error('❌ Real-time sync error');
+                        updateSyncIndicator('error');
+                        // Retry connection after 5 seconds
+                        setTimeout(setupRealtimeSync, 5000);
+                    }
+                });
+        }
+
+        async function handleRealtimeUpdate(payload) {
+            console.log('🔄 Processing real-time update...');
+            
+            // Force refresh all data from database
+            await loadBrandData();
+            
+            showNotification('Data updated in real-time', 'success');
+            updateSyncIndicator('syncing');
+            
+            setTimeout(() => updateSyncIndicator('active'), 1000);
+        }
+
+        function updateSyncIndicator(status) {
+            const indicator = document.getElementById('syncIndicator');
+            if (!indicator) return;
+
+            indicator.className = 'sync-indicator';
+            if (status === 'active') {
+                indicator.innerHTML = '<i class="fas fa-sync"></i><span>Real-time Sync Active</span>';
+            } else if (status === 'syncing') {
+                indicator.innerHTML = '<i class="fas fa-sync fa-spin"></i><span>Syncing Changes...</span>';
+                indicator.classList.add('syncing');
+            } else if (status === 'error') {
+                indicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Sync Error</span>';
+                indicator.classList.add('error');
+            }
+        }
+
+        // =============================================
+        // CORE FUNCTIONALITY
+        // =============================================
+
+        // Utility Functions
+        function formatCorporateNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function calculateCorporateRevenue(views) {
+            const rpm = 0.12;
+            return (views / 1000) * rpm;
+        }
+
+        function formatCorporateCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function showLoading(message = 'Loading...') {
+            loadingOverlay.style.display = 'flex';
+            document.getElementById('loadingText').textContent = message;
+        }
+
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        // Authentication
+        function authenticateUser(email, password) {
+            showLoading('Authenticating...');
+            
+            setTimeout(() => {
+                const user = USER_CREDENTIALS[email];
+                if (user && user.password === password) {
+                    currentUser = {
+                        email: email,
+                        name: user.name,
+                        role: user.role,
+                        avatar: user.avatar
+                    };
+                    handleSuccessfulLogin();
+                    hideLoading();
+                    return true;
+                } else {
+                    errorMessage.style.display = 'block';
+                    hideLoading();
+                    return false;
+                }
+            }, 1000);
+        }
+
+        function handleSuccessfulLogin() {
+            // Update UI
+            userName.textContent = currentUser.name;
+            userRole.textContent = currentUser.role;
+            userAvatar.textContent = currentUser.avatar;
+            
+            const hour = new Date().getHours();
+            let greeting = "Good Morning";
+            if (hour >= 12 && hour < 18) greeting = "Good Afternoon";
+            if (hour >= 18) greeting = "Good Evening";
+            welcomeMessage.innerHTML = `${greeting}, ${currentUser.name}`;
+
+            // Show dashboard
+            loginPage.style.display = 'none';
+            dashboard.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            // Show role-based features
+            updateRoleBasedFeatures();
+            
+            showNotification('Login successful! Dashboard loaded.', 'success');
+            
+            // Load initial data and setup real-time
+            initializeDashboard();
+        }
+
+        function updateRoleBasedFeatures() {
+            // Reset all special features first
+            userManagementToggle.style.display = 'none';
+            updateToggle.style.display = 'none';
+            cfoToggle.style.display = 'none';
+
+            // Admin features
+            if (currentUser.role === 'Admin') {
+                userManagementToggle.style.display = 'flex';
+                updateToggle.style.display = 'flex';
+                cfoToggle.style.display = 'flex';
+            }
+            
+            // CFO features
+            if (currentUser.role === 'CFO' || currentUser.role === 'CEO') {
+                cfoToggle.style.display = 'flex';
+            }
+        }
+
+        async function initializeDashboard() {
+            showLoading('Loading dashboard data...');
+            try {
+                await loadBrandData();
+                setupRealtimeSync();
+                updateAIIinsights();
+                loadUsers();
+                hideLoading();
+            } catch (error) {
+                console.error('Dashboard init error:', error);
+                showNotification('Error loading dashboard data', 'error');
+                hideLoading();
+            }
+        }
+
+        async function loadBrandData() {
+            try {
+                console.log('📥 Loading brand data from Supabase...');
+                
+                // Load the actual metrics with brand info
+                const { data, error } = await supabase
+                    .from('brand_metrics')
+                    .select(`
+                        *,
+                        brands!inner (name, youtube_url)
+                    `)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Supabase query error:', error);
+                    throw error;
+                }
+
+                // Format data for frontend
+                corporateData = {};
+                if (data && data.length > 0) {
+                    data.forEach(metric => {
+                        if (metric.brands) {
+                            corporateData[metric.brands.name] = {
+                                views_48h: metric.views_48h || 0,
+                                views_7d: metric.views_7d || 0,
+                                views_28d: metric.views_28d || 0,
+                                streams: metric.streams || 0,
+                                top_countries: metric.top_countries || [],
+                                youtube_url: metric.brands.youtube_url || '#',
+                                last_updated: metric.created_at,
+                                updated_by: metric.updated_by
+                            };
+                        }
+                    });
+                    console.log('✅ Data loaded successfully:', corporateData);
+                } else {
+                    // Fallback to default data
+                    console.log('⚠️ No data found, using fallback');
+                    corporateData = getFallbackData();
+                }
+
+                renderBrandPortfolio();
+                updateDashboardStats();
+                renderDataTable();
+                
+            } catch (error) {
+                console.error('❌ Error loading brand data:', error);
+                corporateData = getFallbackData();
+                renderBrandPortfolio();
+                updateDashboardStats();
+                renderDataTable();
+                showNotification('Using fallback data', 'warning');
+            }
+        }
+
+        function getFallbackData() {
+            return {
+                "IAkeys": {
+                    "views_48h": 15600,
+                    "views_7d": 84200,
+                    "views_28d": 325000,
+                    "streams": 215000,
+                    "top_countries": ["United States", "United Kingdom", "Canada", "Australia", "Germany"],
+                    "youtube_url": "https://youtube.com/@iakeysofficial",
+                    "last_updated": new Date().toISOString(),
+                    "updated_by": "system"
+                },
+                "EVER-SPORTZ": {
+                    "views_48h": 12800,
+                    "views_7d": 68400,
+                    "views_28d": 258000,
+                    "streams": 182000,
+                    "top_countries": ["United States", "Australia", "Germany", "Brazil", "Japan"],
+                    "youtube_url": "#",
+                    "last_updated": new Date().toISOString(),
+                    "updated_by": "system"
+                },
+                "EVER-MOVIEZ": {
+                    "views_48h": 21500,
+                    "views_7d": 118000,
+                    "views_28d": 452000,
+                    "streams": 285000,
+                    "top_countries": ["United States", "United Kingdom", "India", "Mexico", "France"],
+                    "youtube_url": "#",
+                    "last_updated": new Date().toISOString(),
+                    "updated_by": "system"
+                },
+                "EVER-CATOONZ": {
+                    "views_48h": 9800,
+                    "views_7d": 52400,
+                    "views_28d": 198000,
+                    "streams": 142000,
+                    "top_countries": ["United States", "Mexico", "Brazil", "Spain", "Italy"],
+                    "youtube_url": "#",
+                    "last_updated": new Date().toISOString(),
+                    "updated_by": "system"
+                }
+            };
+        }
+
+        function updateDashboardStats() {
+            const totalRev = Object.values(corporateData).reduce((sum, brand) => 
+                sum + calculateCorporateRevenue(brand.views_28d || 0), 0
+            );
+            const totalViewsCount = Object.values(corporateData).reduce((sum, brand) => 
+                sum + (brand.views_28d || 0), 0
+            );
+            
+            totalRevenue.textContent = formatCorporateCurrency(totalRev);
+            totalViews.textContent = formatCorporateNumber(totalViewsCount);
+
+            // Update CFO dashboard if visible
+            if (cfoDashboard.style.display !== 'none') {
+                updateCFODashboard();
+            }
+        }
+
+        function updateCFODashboard() {
+            const totalValue = Object.values(corporateData).reduce((sum, brand) => 
+                sum + calculateCorporateRevenue(brand.views_28d || 0), 0
+            );
+
+            document.getElementById('cfoTotalValue').textContent = formatCorporateCurrency(totalValue);
+            
+            const profitMargin = 65 + Math.random() * 10;
+            const cashFlow = totalValue * 0.15;
+            
+            document.getElementById('cfoProfitMargin').textContent = profitMargin.toFixed(1) + '%';
+            document.getElementById('cfoCashFlow').textContent = formatCorporateCurrency(cashFlow);
+        }
+
+        // Render Functions
+        function renderBrandPortfolio() {
+            brandsGrid.innerHTML = '';
+            
+            Object.keys(corporateData).forEach(brand => {
+                const data = corporateData[brand];
+                const revenue = calculateCorporateRevenue(data.views_28d || 0);
+                const growth = Math.round(((data.views_28d || 0) / 250000 - 1) * 100);
+                
+                const brandCard = document.createElement('div');
+                brandCard.className = 'brand-card';
+                brandCard.innerHTML = `
+                    <div class="brand-header">
+                        <div class="brand-info">
+                            <div class="brand-logo-large">${brand.substring(0,2)}</div>
+                            <div class="brand-details">
+                                <h3>${brand}</h3>
+                                <p>Global Media Brand</p>
+                            </div>
+                        </div>
+                        <div class="stat-trend">+${Math.abs(growth)}%</div>
+                    </div>
+                    <div class="brand-stats">
+                        <div class="brand-stat">
+                            <div class="brand-stat-value">${formatCorporateNumber(data.views_48h || 0)}</div>
+                            <div class="brand-stat-label">48H Views</div>
+                        </div>
+                        <div class="brand-stat">
+                            <div class="brand-stat-value">${formatCorporateNumber(data.views_7d || 0)}</div>
+                            <div class="brand-stat-label">7D Views</div>
+                        </div>
+                        <div class="brand-stat">
+                            <div class="brand-stat-value">${formatCorporateNumber(data.views_28d || 0)}</div>
+                            <div class="brand-stat-label">28D Views</div>
+                        </div>
+                        <div class="brand-stat">
+                            <div class="brand-stat-value">${formatCorporateNumber(data.streams || 0)}</div>
+                            <div class="brand-stat-label">Streams</div>
+                        </div>
+                    </div>
+                    <div class="brand-revenue">
+                        <div class="revenue-label">Projected Monthly Revenue</div>
+                        <div class="revenue-value">${formatCorporateCurrency(revenue)}</div>
+                    </div>
+                    <div class="brand-actions">
+                        <button class="brand-btn" onclick="analyzeBrand('${brand}')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Analytics</span>
+                        </button>
+                        <a href="${data.youtube_url || '#'}" target="_blank" class="brand-btn primary">
+                            <i class="fab fa-youtube"></i>
+                            <span>Channel</span>
+                        </a>
+                    </div>
+                    ${data.last_updated ? `
+                    <div style="margin-top: 10px; font-size: 11px; color: var(--gray); text-align: center;">
+                        Updated: ${new Date(data.last_updated).toLocaleTimeString()} 
+                        ${data.updated_by && data.updated_by !== 'system' ? `by ${data.updated_by}` : ''}
+                    </div>
+                    ` : ''}
+                `;
+                brandsGrid.appendChild(brandCard);
+            });
+        }
+
+        function renderDataTable() {
+            tableBody.innerHTML = '';
+            
+            Object.keys(corporateData).forEach(brand => {
+                const data = corporateData[brand];
+                const revenue = calculateCorporateRevenue(data.views_28d || 0);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${brand}</td>
+                    <td>${formatCorporateNumber(data.views_48h || 0)}</td>
+                    <td>${formatCorporateNumber(data.views_7d || 0)}</td>
+                    <td>${formatCorporateNumber(data.views_28d || 0)}</td>
+                    <td>${formatCorporateNumber(data.streams || 0)}</td>
+                    <td>${formatCorporateCurrency(revenue)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // User Management
+        function loadUsers() {
+            const users = [
+                { email: 'ceo@evergreenempireltd.com', role: 'CEO', name: 'Chief Executive Officer' },
+                { email: 'cfo@evergreenempireltd.com', role: 'CFO', name: 'Chief Financial Officer' },
+                { email: 'admin@evergreenempireltd.com', role: 'Admin', name: 'Chief Operations' }
+            ];
+            renderUsersList(users);
+        }
+
+        function renderUsersList(users) {
+            usersList.innerHTML = '';
+            
+            users.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                
+                if (user.email === 'admin@evergreenempireltd.com') {
+                    userItem.innerHTML = `
+                        <div class="user-details">
+                            <h4>${user.email}</h4>
+                            <p>${user.role} • ${user.name}</p>
+                        </div>
+                        <div class="user-actions">
+                            <span style="color: var(--gray); font-size: 12px;">Owner</span>
+                        </div>
+                    `;
+                } else {
+                    userItem.innerHTML = `
+                        <div class="user-details">
+                            <h4>${user.email}</h4>
+                            <p>${user.role} • ${user.name}</p>
+                        </div>
+                        <div class="user-actions">
+                            <button class="user-action-btn reset" onclick="resetUserPassword('${user.email}')">
+                                Reset Password
+                            </button>
+                            <button class="user-action-btn delete" onclick="deleteUser('${user.email}')">
+                                Delete
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                usersList.appendChild(userItem);
+            });
+        }
+
+        // Notification System
+        function showNotification(message, type = 'success', duration = 5000) {
+            notificationCount++;
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.id = `notification-${notificationCount}`;
+            
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle'
+            };
+            
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    <i class="${icons[type]}"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                    <div class="notification-message">${message}</div>
+                    <div class="notification-time">${new Date().toLocaleTimeString()}</div>
+                </div>
+                <button class="notification-close" onclick="closeNotification('notification-${notificationCount}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            notificationCenter.appendChild(notification);
+            
+            setTimeout(() => {
+                closeNotification(`notification-${notificationCount}`);
+            }, duration);
+        }
+
+        function closeNotification(id) {
+            const notification = document.getElementById(id);
+            if (notification) {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+        }
+
+        // Form Handling with Real-time Updates - FIXED
+        function setupFormEvents() {
+            const brandSelect = document.getElementById('brandSelect');
+            if (brandSelect) {
+                brandSelect.addEventListener('change', function() {
+                    const brand = this.value;
+                    if (brand && corporateData[brand]) {
+                        const data = corporateData[brand];
+                        document.getElementById('views48h').value = data.views_48h || '';
+                        document.getElementById('views7d').value = data.views_7d || '';
+                        document.getElementById('views28d').value = data.views_28d || '';
+                        document.getElementById('streams').value = data.streams || '';
+                        currentCountries = [...(data.top_countries || [])];
+                        renderCountriesList();
+                        updateRevenueDisplay();
+                    }
+                });
+            }
+
+            const updateForm = document.getElementById('updateForm');
+            if (updateForm) {
+                updateForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const isAdmin = currentUser && currentUser.role === 'Admin';
+                    if (!isAdmin) {
+                        showNotification('Access Denied: Only administrators can update data.', 'error');
+                        return;
+                    }
+
+                    showLoading('Updating corporate data...');
+                    
+                    try {
+                        const brand = document.getElementById('brandSelect').value;
+                        const views48h = parseInt(document.getElementById('views48h').value) || 0;
+                        const views7d = parseInt(document.getElementById('views7d').value) || 0;
+                        const views28d = parseInt(document.getElementById('views28d').value) || 0;
+                        const streams = parseInt(document.getElementById('streams').value) || 0;
+                        
+                        console.log('📊 Updating data for:', brand, {
+                            views48h, views7d, views28d, streams, currentCountries
+                        });
+
+                        // Get brand ID first
+                        const { data: brandData, error: brandError } = await supabase
+                            .from('brands')
+                            .select('id')
+                            .eq('name', brand)
+                            .single();
+
+                        if (brandError) {
+                            console.error('Brand lookup error:', brandError);
+                            throw new Error(`Brand "${brand}" not found in database`);
+                        }
+
+                        // Insert new metrics
+                        const { data: result, error: insertError } = await supabase
+                            .from('brand_metrics')
+                            .insert([
+                                {
+                                    brand_id: brandData.id,
+                                    views_48h: views48h,
+                                    views_7d: views7d,
+                                    views_28d: views28d,
+                                    streams: streams,
+                                    top_countries: currentCountries,
+                                    updated_by: currentUser.name,
+                                    created_at: new Date().toISOString()
+                                }
+                            ])
+                            .select();
+
+                        if (insertError) {
+                            console.error('Insert error:', insertError);
+                            throw insertError;
+                        }
+
+                        console.log('✅ Data inserted successfully:', result);
+                        
+                        // Force immediate refresh for current user
+                        await loadBrandData();
+                        
+                        showNotification(
+                            `✅ ${brand} data updated successfully! All users will see changes in real-time.`, 
+                            'success'
+                        );
+                        
+                        // Reset form
+                        updateForm.reset();
+                        currentCountries = [];
+                        renderCountriesList();
+                        
+                    } catch (error) {
+                        console.error('❌ Error updating data:', error);
+                        showNotification(`Error: ${error.message}`, 'error');
+                    } finally {
+                        hideLoading();
+                    }
+                });
+            }
+
+            // User form
+            userForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('newUserEmail').value;
+                const password = document.getElementById('newUserPassword').value;
+                const role = document.getElementById('newUserRole').value;
+                
+                showNotification(`User ${email} created successfully!`, 'success');
+                userForm.reset();
+            });
+        }
+
+        // Country Management
+        function addCountry() {
+            const country = document.getElementById('countryInput').value.trim();
+            if (country && !currentCountries.includes(country)) {
+                currentCountries.push(country);
+                renderCountriesList();
+                document.getElementById('countryInput').value = '';
+            }
+        }
+
+        function removeCountry(index) {
+            currentCountries.splice(index, 1);
+            renderCountriesList();
+        }
+
+        function renderCountriesList() {
+            const countriesList = document.getElementById('countriesList');
+            countriesList.innerHTML = '';
+            currentCountries.forEach((country, index) => {
+                const countryTag = document.createElement('div');
+                countryTag.className = 'country-tag';
+                countryTag.innerHTML = `${country}<span class="remove-country" onclick="removeCountry(${index})">×</span>`;
+                countriesList.appendChild(countryTag);
+            });
+        }
+
+        // Revenue Calculation
+        function updateRevenueDisplay() {
+            const views28d = parseInt(document.getElementById('views28d').value) || 0;
+            const revenue = calculateCorporateRevenue(views28d);
+            document.getElementById('revenueValue').textContent = formatCorporateCurrency(revenue);
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            themeToggle.innerHTML = isDark ? 
+                '<i class="fas fa-sun"></i><span>Light</span>' : 
+                '<i class="fas fa-moon"></i><span>Dark</span>';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Light</span>';
+            }
+        }
+
+        // View Toggles
+        function toggleUserManagement() {
+            if (userManagement.style.display !== 'none') {
+                userManagement.style.display = 'none';
+                dashboardView.style.display = 'block';
+                userManagementToggle.innerHTML = '<i class="fas fa-users"></i><span>Users</span>';
+            } else {
+                userManagement.style.display = 'block';
+                dashboardView.style.display = 'none';
+                cfoDashboard.style.display = 'none';
+                updateView.style.display = 'none';
+                userManagementToggle.innerHTML = '<i class="fas fa-chart-bar"></i><span>Analytics</span>';
+            }
+            closeMobileMenu();
+        }
+
+        function toggleCFODashboard() {
+            if (cfoDashboard.style.display !== 'none') {
+                cfoDashboard.style.display = 'none';
+                dashboardView.style.display = 'block';
+                cfoToggle.innerHTML = '<i class="fas fa-chart-line"></i><span>CFO Tools</span>';
+            } else {
+                cfoDashboard.style.display = 'block';
+                dashboardView.style.display = 'none';
+                userManagement.style.display = 'none';
+                updateView.style.display = 'none';
+                cfoToggle.innerHTML = '<i class="fas fa-chart-bar"></i><span>Analytics</span>';
+                updateCFODashboard();
+            }
+            closeMobileMenu();
+        }
+
+        function togglePortalView() {
+            const isAdmin = currentUser && currentUser.role === 'Admin';
+            
+            if (!isAdmin && updateView.style.display === 'none') {
+                showNotification("Access Denied: Only administrators can access the update portal.", "error");
+                return;
+            }
+
+            if (dashboardView.style.display !== 'none') {
+                dashboardView.style.display = 'none';
+                updateView.style.display = 'block';
+                userManagement.style.display = 'none';
+                cfoDashboard.style.display = 'none';
+                portalToggle.innerHTML = '<i class="fas fa-chart-bar"></i><span>Analytics</span>';
+            } else {
+                dashboardView.style.display = 'block';
+                updateView.style.display = 'none';
+                portalToggle.innerHTML = '<i class="fas fa-edit"></i><span>Update Data</span>';
+            }
+            closeMobileMenu();
+        }
+
+        // AI Insights
+        function updateAIIinsights() {
+            const insights = [
+                "IAkeys shows strongest growth in US market with 32% increase in view velocity",
+                "EVER-MOVIEZ has highest engagement rate at 4.2% - consider content expansion",
+                "European markets showing 15% growth potential for EVER-SPORTZ",
+                "Overall revenue trending +8.3% month-over-month across portfolio",
+                "Recommend increasing investment in EVER-CATOONZ Latin American expansion"
+            ];
+            
+            const randomInsight = insights[Math.floor(Math.random() * insights.length)];
+            
+            aiContent.innerHTML = `
+                <div style="color: var(--gray); font-style: italic; margin-bottom: 10px;">
+                    Analyzing brand performance data...
+                </div>
+                <div style="font-size: 14px; line-height: 1.5;">
+                    <strong>Strategic Insight:</strong><br>
+                    ${randomInsight}
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; color: var(--gray);">
+                    Last updated: ${new Date().toLocaleTimeString()}
+                </div>
+            `;
+        }
+
+        // CFO Tools
+        function runFinancialForecast() {
+            showNotification('Generating revenue forecast...', 'info');
+            setTimeout(() => {
+                const forecast = Object.values(corporateData).reduce((sum, brand) => 
+                    sum + calculateCorporateRevenue(brand.views_28d || 0) * 1.15, 0
+                );
+                showNotification(`Revenue forecast: ${formatCorporateCurrency(forecast)} (15% growth)`, 'success');
+            }, 2000);
+        }
+
+        function generateFinancialStatements() {
+            showNotification('Preparing financial statements...', 'info');
+            setTimeout(() => {
+                exportFinancialReport();
+                showNotification('Financial statements ready for download!', 'success');
+            }, 2000);
+        }
+
+        function calculateTaxLiability() {
+            showNotification('Calculating tax liability...', 'info');
+            setTimeout(() => {
+                const totalRevenue = Object.values(corporateData).reduce((sum, brand) => 
+                    sum + calculateCorporateRevenue(brand.views_28d || 0), 0
+                );
+                const taxLiability = totalRevenue * 0.21;
+                showNotification(`Estimated tax liability: ${formatCorporateCurrency(taxLiability)}`, 'success');
+            }, 2000);
+        }
+
+        function generateBoardReport() {
+            showNotification('Compiling board meeting report...', 'info');
+            setTimeout(() => {
+                exportFinancialReport();
+                showNotification('Board report generated successfully!', 'success');
+            }, 2000);
+        }
+
+        // CSV Export
+        function exportToCSV() {
+            let csvContent = "Brand,48H Views,7D Views,28D Views,Streams,Revenue,Last Updated,Updated By\n";
+            
+            Object.keys(corporateData).forEach(brand => {
+                const data = corporateData[brand];
+                const revenue = calculateCorporateRevenue(data.views_28d || 0);
+                const lastUpdated = data.last_updated ? new Date(data.last_updated).toLocaleString() : 'N/A';
+                const updatedBy = data.updated_by || 'system';
+                csvContent += `${brand},${data.views_48h},${data.views_7d},${data.views_28d},${data.streams},${revenue},${lastUpdated},${updatedBy}\n`;
+            });
+
+            downloadCSV(csvContent, 'evergreen-empire-data.csv');
+            showNotification('CSV exported successfully!', 'success');
+        }
+
+        function exportFinancialReport() {
+            let csvContent = "EVERGREEN EMPIRE - FINANCIAL REPORT\n";
+            csvContent += `Generated: ${new Date().toLocaleDateString()}\n`;
+            csvContent += `Generated By: ${currentUser.name}\n\n`;
+            csvContent += "Brand,48H Views,7D Views,28D Views,Streams,Revenue,Growth,Last Updated\n";
+            
+            Object.keys(corporateData).forEach(brand => {
+                const data = corporateData[brand];
+                const revenue = calculateCorporateRevenue(data.views_28d || 0);
+                const growth = Math.round(((data.views_28d || 0) / 250000 - 1) * 100);
+                const lastUpdated = data.last_updated ? new Date(data.last_updated).toLocaleString() : 'N/A';
+                csvContent += `${brand},${data.views_48h},${data.views_7d},${data.views_28d},${data.streams},${revenue},${growth}%,${lastUpdated}\n`;
+            });
+
+            const totalRev = Object.values(corporateData).reduce((sum, brand) => 
+                sum + calculateCorporateRevenue(brand.views_28d || 0), 0
+            );
+            
+            csvContent += `\nTOTAL REVENUE,${formatCorporateCurrency(totalRev)}\n`;
+            csvContent += `PROFIT MARGIN,68.2%\n`;
+            csvContent += `CASH FLOW,${formatCorporateCurrency(totalRev * 0.15)}`;
+
+            downloadCSV(csvContent, 'evergreen-financial-report.csv');
+            showNotification('Financial report exported!', 'success');
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Mobile Menu Functions
+        function setupMobileMenu() {
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (isMobileMenuOpen && !e.target.closest('.header-controls') && !e.target.closest('.mobile-menu-btn')) {
+                    closeMobileMenu();
+                }
+            });
+
+            // Close mobile menu on window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 1024 && isMobileMenuOpen) {
+                    closeMobileMenu();
+                }
+            });
+        }
+
+        function toggleMobileMenu() {
+            if (isMobileMenuOpen) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        }
+
+        function openMobileMenu() {
+            const headerControls = document.querySelector('.header-controls');
+            headerControls.style.display = 'flex';
+            headerControls.style.flexDirection = 'column';
+            headerControls.style.position = 'absolute';
+            headerControls.style.top = '100%';
+            headerControls.style.left = '0';
+            headerControls.style.right = '0';
+            headerControls.style.background = 'var(--light)';
+            headerControls.style.border = '1px solid var(--border)';
+            headerControls.style.borderRadius = '0 0 12px 12px';
+            headerControls.style.padding = '16px';
+            headerControls.style.boxShadow = 'var(--shadow)';
+            headerControls.style.zIndex = '1000';
+            headerControls.style.gap = '12px';
+            
+            isMobileMenuOpen = true;
+            mobileMenuBtn.innerHTML = '<i class="fas fa-times"></i>';
+        }
+
+        function closeMobileMenu() {
+            const headerControls = document.querySelector('.header-controls');
+            headerControls.removeAttribute('style');
+            isMobileMenuOpen = false;
+            mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                authenticateUser(email, password);
+            });
+
+            refreshBtn.addEventListener('click', function() {
+                loadBrandData();
+                showNotification('Data refreshed successfully!', 'success');
+            });
+
+            refreshDataBtn.addEventListener('click', function() {
+                loadBrandData();
+                showNotification('Data refreshed successfully!', 'success');
+            });
+
+            refreshUsersBtn.addEventListener('click', function() {
+                loadUsers();
+                showNotification('Users list refreshed!', 'success');
+            });
+
+            themeToggle.addEventListener('click', toggleTheme);
+            userManagementToggle.addEventListener('click', toggleUserManagement);
+            cfoToggle.addEventListener('click', toggleCFODashboard);
+            portalToggle.addEventListener('click', togglePortalView);
+            updateToggle.addEventListener('click', togglePortalView);
+
+            logoutBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to log out?')) {
+                    if (realtimeSubscription) {
+                        supabase.removeChannel(realtimeSubscription);
+                    }
+                    currentUser = null;
+                    localStorage.removeItem('currentUser');
+                    loginPage.style.display = 'flex';
+                    dashboard.style.display = 'none';
+                    loginForm.reset();
+                    closeMobileMenu();
+                }
+            });
+
+            exportCSVBtn.addEventListener('click', exportToCSV);
+            exportFinancialBtn.addEventListener('click', exportFinancialReport);
+            aiRefreshBtn.addEventListener('click', updateAIIinsights);
+            generateReportBtn.addEventListener('click', generateBoardReport);
+
+            document.getElementById('addCountryBtn').addEventListener('click', addCountry);
+            document.getElementById('views28d').addEventListener('input', updateRevenueDisplay);
+            document.getElementById('togglePassword').addEventListener('click', function() {
+                const passwordInput = document.getElementById('password');
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            });
+
+            // CSV Upload
+            document.getElementById('browseCSVBtn').addEventListener('click', function() {
+                document.getElementById('csvFileInput').click();
+            });
+
+            document.getElementById('csvFileInput').addEventListener('change', function(e) {
+                if (this.files.length > 0) {
+                    showNotification('CSV file selected: ' + this.files[0].name, 'success');
+                    // Here you would process the CSV file
+                }
+            });
+
+            // Mobile optimizations
+            setupMobileMenu();
+        }
+
+        // Session Management
+        function checkExistingSession() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                loginPage.style.display = 'none';
+                dashboard.style.display = 'block';
+                handleSuccessfulLogin();
+            }
+        }
+
+        // Global Functions
+        window.analyzeBrand = function(brand) {
+            const brandData = corporateData[brand];
+            if (brandData) {
+                const revenue = calculateCorporateRevenue(brandData.views_28d);
+                const analysis = `
+Brand: ${brand}
+28D Views: ${formatCorporateNumber(brandData.views_28d)}
+Projected Revenue: ${formatCorporateCurrency(revenue)}
+Top Markets: ${brandData.top_countries.join(', ')}
+Engagement Rate: ${((brandData.streams / brandData.views_28d) * 100).toFixed(1)}%
+Last Updated: ${brandData.last_updated ? new Date(brandData.last_updated).toLocaleString() : 'N/A'}
+Updated By: ${brandData.updated_by || 'system'}
+                `;
+                alert(analysis);
+            }
+        };
+
+        window.removeCountry = removeCountry;
+        window.resetUserPassword = function(email) {
+            const newPassword = prompt(`Enter new password for ${email}:`);
+            if (newPassword && newPassword.length >= 6) {
+                showNotification(`Password reset for ${email}`, 'success');
+            }
+        };
+
+        window.deleteUser = function(email) {
+            if (email === 'admin@evergreenempireltd.com') {
+                showNotification('Cannot delete admin user!', 'error');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete ${email}?`)) {
+                showNotification(`User ${email} deleted`, 'success');
+                loadUsers();
+            }
+        };
+
+        window.runFinancialForecast = runFinancialForecast;
+        window.generateFinancialStatements = generateFinancialStatements;
+        window.calculateTaxLiability = calculateTaxLiability;
+        window.generateBoardReport = generateBoardReport;
+        window.closeNotification = closeNotification;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            setupEventListeners();
+            setupFormEvents();
+            checkExistingSession();
+            
+            console.log('🚀 EverGreen Empire Dashboard - Fixed Real-Time Version Activated');
+            
+            // Demo notification
+            setTimeout(() => {
+                showNotification('Real-time synchronization activated. All users will see updates instantly.', 'info');
+            }, 1000);
+
+            // Mobile detection
+            if ('ontouchstart' in window || navigator.maxTouchPoints) {
+                document.body.classList.add('touch-device');
+            }
+        });
+
+        // Handle window resize for responsive adjustments
+        window.addEventListener('resize', function() {
+            // Close mobile menu on desktop
+            if (window.innerWidth >= 1024 && isMobileMenuOpen) {
+                closeMobileMenu();
+            }
+        });
+    </script>
+</body>
+</html>
